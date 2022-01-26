@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Alpine Essential</title>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div x-data="game()" class="px-10 flex items-center justify-center min-h-screen">
+        <h1 class="fixed top-0 left-0 p-10 font-bold text-3xl">
+            <span x-text="points"></span>
+            <span class="text-xs">pts</span>
+        </h1>
+        <div class="flex-1 grid grid-cols-6 gap-10">
+            <template x-for="card in cards">
+                <div>
+                    <button x-show="!card.cleared" :disabled="flippedCards.length >= 2"
+                        :style="'background:'+ (card.flipped ? card.color : '#999')" @click="flipCard(card)"
+                        class="h-32 w-full"></button>
+                </div>
+            </template>
+        </div>
+    </div>
+    <style>
+        .asdf {
+            background:
+        }
+    </style>
+    <!-- Flash Message -->
+    <div x-data="{ show: false, message: '' }" x-show.transition.opacity="show" x-text="message" @flash.window="
+            message = $event.detail.message;
+            show = true;
+            setTimeout(() => show = false, 1000)
+        " class="fixed top-0 right-0 bg-green-500 text-white p-2 mb-4 mr-4 rounded">
+    </div>
+    <script>
+        function pause(miliseconds = 1000) {
+            return new Promise(resolve => setTimeout(resolve, miliseconds));
+        }
+        function flash(message) {
+            window.dispatchEvent(new CustomEvent('flash', {
+                detail: { message }
+            }));
+        }
+
+        function game() {
+            return {
+                cards: [
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'green', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                    { color: 'yellow', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'red', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'blue', flipped: false, cleared: false },
+                    { color: 'violet', flipped: false, cleared: false },
+                    { color: 'violet', flipped: false, cleared: false },
+                    { color: 'orange', flipped: false, cleared: false },
+                    { color: 'orange', flipped: false, cleared: false },
+                    { color: 'pink', flipped: false, cleared: false },
+                    { color: 'pink', flipped: false, cleared: false },
+                    { color: 'aqua', flipped: false, cleared: false },
+                    { color: 'aqua', flipped: false, cleared: false },
+                    { color: 'black', flipped: false, cleared: false },
+                    { color: 'black', flipped: false, cleared: false },
+                ].sort(() => Math.random() - .5),
+
+                get flippedCards() {
+                    return this.cards.filter(card => card.flipped);
+                },
+                get clearedCards() {
+                    return this.cards.filter(card => card.cleared);
+                },
+                get remainingCards() {
+                    return this.cards.filter(card => !card.cleared);
+                },
+                get points() {
+                    return this.clearedCards.length;
+                },
+
+                // if filp the card
+                async flipCard(card) {
+                    console.log(this.cards);
+                    card.flipped = !card.flipped;
+                    // if two card filpped check is they match
+                    if (this.flippedCards.length === 2) {
+                        //if two filpped card match
+                        if (this.hasMatch()) {
+                            flash('You found a match!');
+                            await pause();
+                            // mark this two card as cleared
+                            this.flippedCards.forEach(card => card.cleared = true);
+
+                            // if this is no remaing card
+                            if (!this.remainingCards.length) {
+                                alert("you win");
+                            }
+                        } else {
+                            await pause();
+                        }
+                        // all flipped card remark as not flipped and also mean reset this flippedCards array
+                        this.flippedCards.forEach(card => card.flipped = false);
+                    }
+                },
+
+                //if two flipped card match
+                hasMatch() {
+                    return this.flippedCards[0]['color'] === this.flippedCards[1]['color'];
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
